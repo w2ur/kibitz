@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2c2c2c">
+  <title>Kibitz</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="app">
+    <p style="color: var(--color-cream); padding: 2rem; font-family: system-ui, sans-serif;">
+      Kibitz — coming soon.
+    </p>
+  </div>
+
+  <footer class="footer">
+    Made with care by <a href="https://william.revah.paris">William</a>
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>

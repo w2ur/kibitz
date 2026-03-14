@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Python / ML
+__pycache__/
+*.pyc
+.venv/
+venv/
+training/data/
+training/runs/
+training/output/
+*.pt
+*.pth
+wandb/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Plans and scratch
+docs/plans/
+.superpowers/
+
+# Backups
+*.bak
+*.backup
