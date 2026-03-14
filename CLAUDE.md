@@ -70,7 +70,7 @@ Justification: the artistic direction requires a fixed chess-themed palette.
 
 ## Deployment
 
-GitHub Pages from `main` branch. Models committed directly (no Git LFS — GitHub Pages serves LFS pointer files, not actual blobs). No custom HTTP headers available, so Stockfish runs single-threaded (SharedArrayBuffer unavailable).
+GitHub Pages from `main` branch at `https://w2ur.github.io/kibitz/`. Models committed directly (no Git LFS — GitHub Pages serves LFS pointer files, not actual blobs). No custom HTTP headers available, so Stockfish runs single-threaded (SharedArrayBuffer unavailable).
 
 ## Project-Specific Rules
 

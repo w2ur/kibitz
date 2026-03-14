@@ -5,7 +5,6 @@ Usage:
 """
 
 import argparse
-import shutil
 from pathlib import Path
 
 import yaml

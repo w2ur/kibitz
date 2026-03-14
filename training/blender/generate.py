@@ -16,7 +16,6 @@ import bpy
 import bmesh
 import json
 import math
-import os
 import random
 import sys
 from pathlib import Path
@@ -290,7 +289,7 @@ def generate_dataset(args):
         num_lights = random.randint(2, 4)
 
         # Setup scene
-        board = create_board()
+        create_board()
         cam = setup_camera(pitch, yaw, distance)
         setup_lighting(num_lights)
 
@@ -306,7 +305,7 @@ def generate_dataset(args):
 
         # Generate and place random position
         fen = random_fen()
-        pieces = place_pieces(fen, templates, white_mat, black_mat)
+        place_pieces(fen, templates, white_mat, black_mat)
 
         # Render
         img_path = str(output_dir / 'images' / f'{i:06d}.png')

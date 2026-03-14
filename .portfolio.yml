@@ -20,7 +20,7 @@ stack:
 deployment:
   platform: github-pages
   auto_deploy: true
-  url: ""
+  url: "https://w2ur.github.io/kibitz/"
 domain: ""
-icon_file: ""
+icon_file: "assets/icon-512.png"
 sort_order: 99 # TODO: assign final sort_order

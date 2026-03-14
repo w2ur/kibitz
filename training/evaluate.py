@@ -11,7 +11,6 @@ from pathlib import Path
 import cv2
 import numpy as np
 import onnxruntime as ort
-import chess
 
 
 CLASS_NAMES = [
@@ -49,15 +48,17 @@ def detect_corners(detector, image):
     input_img = np.transpose(input_img, (2, 0, 1))  # HWC -> CHW
     input_img = np.expand_dims(input_img, 0)  # Add batch dim
 
-    outputs = detector.run(None, {'images': input_img})
+    result = detector.run(None, {'images': input_img})
     # Parse YOLO pose output to extract keypoints
     # Output format depends on the exact YOLO export — adapt as needed
     # Expected: 4 keypoints per detection
 
     # Scale corners back to original image size
-    # ... (implementation depends on exact YOLO output format)
+    # TODO: implement once YOLO export format is confirmed
+    corners = []  # [[x,y], [x,y], [x,y], [x,y]]
+    _ = result  # will be parsed here
 
-    return corners  # [[x,y], [x,y], [x,y], [x,y]]
+    return corners
 
 
 def classify_squares(classifier, image, corners, crop_size=64):
@@ -174,11 +175,11 @@ def evaluate(args):
         if board_correct:
             perfect_boards += 1
 
-    print(f'\n=== Evaluation Results ===')
+    print('\n=== Evaluation Results ===')
     print(f'Total images: {total}')
     print(f'Per-square accuracy: {correct_squares/total_squares*100:.2f}%')
     print(f'Perfect board accuracy: {perfect_boards/total*100:.2f}%')
-    print(f'========================')
+    print('========================')
 
 
 def expand_fen(fen_placement):
