@@ -6,21 +6,29 @@ description: >
   and see the best move overlaid on the photo as arrows. Flip to an interactive
   board to explore the engine's suggested line. Custom neural network trained
   on synthetic data, running entirely in-browser.
-status: development
+
+audience: public
 visibility: public
+status: development
+
+url: https://w2ur.github.io/kibitz/
+domain: w2ur.github.io/kibitz
+deploy: github-pages
+
 portfolio_card: false # TODO: set to true when ready to publish
+portfolio_link: false
+badge: null
+sort_order: 99 # TODO: assign final sort_order
+
+icon_emoji: "♟️"
+icon_file: assets/icon-512.png
+
 stack:
   - Vanilla JS
   - ONNX Runtime Web
   - Stockfish WASM
   - Python
-  - Blender
   - YOLOv8
-  - MobileNetV3
-deployment:
-  platform: github-pages
-  auto_deploy: true
-  url: "https://w2ur.github.io/kibitz/"
-domain: ""
-icon_file: "assets/icon-512.png"
-sort_order: 99 # TODO: assign final sort_order
+
+repo_public: true
+license: null
