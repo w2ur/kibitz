@@ -8,7 +8,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Blender 4.x must be installed separately.
+Blender must be installed separately (latest version).
 
 ## Pipeline
 

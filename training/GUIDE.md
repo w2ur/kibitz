@@ -6,7 +6,7 @@ Everything runs locally on your Mac (M2). No cloud needed.
 
 - macOS with Apple Silicon (M2)
 - ~5 GB free disk space
-- Blender 4.x (installed in Step 1)
+- Blender (latest version, installed in Step 1)
 - Python 3.11+ (already on your Mac)
 
 ---
@@ -15,7 +15,7 @@ Everything runs locally on your Mac (M2). No cloud needed.
 
 ### Step 1: Install Blender
 
-1. Download **Blender 4.x** from https://www.blender.org/download/ (macOS Apple Silicon)
+1. Download the **latest Blender** from https://www.blender.org/download/ (macOS Apple Silicon)
 2. Drag to `/Applications`
 3. Open it once to clear the macOS Gatekeeper warning, then close it
 

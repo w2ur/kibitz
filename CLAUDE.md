@@ -7,7 +7,7 @@ Chess position recognition PWA. Point your phone camera at a chessboard, tap to 
 ## Tech Stack
 
 - **App:** Vanilla JS, no framework, no build step
-- **ML Training:** Python 3.11+, Blender 4.x, Ultralytics (YOLOv8), PyTorch, timm (MobileNetV3)
+- **ML Training:** Python 3.11+, Blender (latest version), Ultralytics (YOLOv8), PyTorch, timm (MobileNetV3)
 - **Browser Inference:** ONNX Runtime Web (WebGPU primary, WASM fallback)
 - **Chess Engine:** Stockfish WASM (single-threaded build)
 - **Deployment:** GitHub Pages

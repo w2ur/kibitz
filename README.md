@@ -38,7 +38,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Generate synthetic training data (requires Blender 4.x)
+# Generate synthetic training data (requires Blender)
 blender --background --python blender/generate.py -- --count 30000 --output data/synthetic/
 
 # Train board detector
