@@ -22,7 +22,7 @@ self.onmessage = async function(e) {
   if (type === 'init') {
     try {
       // Configure ONNX Runtime
-      ort.env.wasm.wasmPaths = '../../vendor/';
+      ort.env.wasm.wasmPaths = { wasm: '../../vendor/ort-wasm-simd-threaded.wasm' };
       // Single-threaded: avoids SharedArrayBuffer requirement
       // (GitHub Pages can't set COOP/COEP headers)
       ort.env.wasm.numThreads = 1;

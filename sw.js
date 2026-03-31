@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kibitz-v2';
+const CACHE_NAME = 'kibitz-v3';
 const MODEL_CACHE = 'kibitz-models-v1';
 
 const APP_SHELL = [
@@ -16,7 +16,6 @@ const APP_SHELL = [
   'vendor/stockfish.js',
   'vendor/stockfish.wasm',
   'vendor/ort.wasm.bundle.min.mjs',
-  'vendor/ort-wasm-simd-threaded.mjs',
   'vendor/ort-wasm-simd-threaded.wasm',
 ];
 
