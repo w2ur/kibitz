@@ -1,43 +1,15 @@
-// Stockfish engine worker
-// Communicates via UCI protocol
-// Wraps stockfish.js v18 (single-threaded WASM build)
+// Engine worker — wraps Stockfish as a sub-worker
+// Stockfish.js is designed as a standalone worker, so we load it in its
+// own Worker and communicate via UCI strings.
 
-// stockfish.js v18 is a self-contained worker script that:
-// - Accepts UCI commands via postMessage(string) to itself
-// - Sends UCI output via the native postMessage(string) back to the main thread
-//
-// We intercept this by:
-// 1. Replacing the global postMessage so stockfish.js output is captured locally
-// 2. Using r.processCommand (set by stockfish.js on load) to send UCI commands
-// 3. Exposing our own structured message API on top
+let sf = null;
+let uciListeners = [];
 
-let stockfishLoaded = false;
-let uciMessageListeners = [];
-let pendingQueue = [];
-
-// Intercept postMessage BEFORE importing stockfish.js
-// stockfish.js calls the native postMessage for UCI output lines
-const nativePostMessage = self.postMessage.bind(self);
-self.postMessage = function (data) {
-  const line = typeof data === 'string' ? data : String(data);
-  // Dispatch to all registered UCI listeners
-  uciMessageListeners.forEach(fn => fn(line));
-};
-
-function addUciListener(fn) {
-  uciMessageListeners.push(fn);
-}
-
-function removeUciListener(fn) {
-  uciMessageListeners = uciMessageListeners.filter(l => l !== fn);
-}
+function addUciListener(fn) { uciListeners.push(fn); }
+function removeUciListener(fn) { uciListeners = uciListeners.filter(l => l !== fn); }
 
 function sendUci(cmd) {
-  if (self.processCommand) {
-    self.processCommand(cmd);
-  } else {
-    pendingQueue.push(cmd);
-  }
+  sf.postMessage(cmd);
 }
 
 function waitFor(prefix, onLine) {
@@ -69,28 +41,17 @@ self.onmessage = async function (e) {
   const { type, id, payload } = e.data;
 
   if (type === 'init') {
-    // Load stockfish.js — it will set self.processCommand and start the engine
-    // Stockfish resolves its .wasm from self.location (the worker's URL),
-    // so engine.worker.wasm must be co-located with this worker file.
-    importScripts('../../vendor/stockfish.js');
-
-    // Wait for Stockfish WASM to compile and set processCommand
-    await new Promise(resolve => {
-      if (self.processCommand) return resolve();
-      const check = setInterval(() => {
-        if (self.processCommand) { clearInterval(check); resolve(); }
-      }, 50);
-    });
-
-    // Flush any commands queued before processCommand was ready
-    while (pendingQueue.length) {
-      self.processCommand(pendingQueue.shift());
-    }
+    // Stockfish.js is a self-contained worker script
+    sf = new Worker('../../vendor/stockfish.js');
+    sf.onmessage = (evt) => {
+      const line = typeof evt.data === 'string' ? evt.data : String(evt.data);
+      uciListeners.forEach(fn => fn(line));
+    };
 
     await uci('uci', 'uciok');
     await uci('isready', 'readyok');
 
-    nativePostMessage({ type: 'ready' });
+    self.postMessage({ type: 'ready' });
   }
 
   if (type === 'analyze') {
@@ -110,7 +71,7 @@ self.onmessage = async function (e) {
     const bestMove = output.split(' ')[1];
     const evalScore = lines.length > 0 ? lines[lines.length - 1].score : null;
 
-    nativePostMessage({
+    self.postMessage({
       type: 'analysis',
       id,
       payload: { bestMove, eval: evalScore, lines },
