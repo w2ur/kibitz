@@ -69,6 +69,11 @@ self.onmessage = async function (e) {
   const { type, id, payload } = e.data;
 
   if (type === 'init') {
+    // Tell Stockfish where to find its .wasm file
+    self.Module = {
+      locateFile: (name) => name.endsWith('.wasm') ? '../../vendor/stockfish.wasm' : name,
+    };
+
     // Load stockfish.js — it will set self.processCommand and start the engine
     importScripts('../../vendor/stockfish.js');
 
