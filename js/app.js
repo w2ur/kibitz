@@ -138,8 +138,14 @@ async function init() {
 
   // Preload models in background — enable capture button when ready
   const captureBtn = document.getElementById('capture-btn');
+  captureBtn.textContent = 'Loading models…';
   Promise.all([recognition.preload(), engine.preload()]).then(() => {
     captureBtn.disabled = false;
+    captureBtn.textContent = '';
+  }).catch((err) => {
+    console.error('Model preload failed:', err);
+    captureBtn.textContent = 'Models failed to load';
+    showTemporaryMessage('Models failed to load. Check the console for details.');
   });
 }
 
