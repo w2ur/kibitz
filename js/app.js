@@ -129,13 +129,25 @@ async function init() {
   // Start model preload and camera init in parallel
   const captureBtn = document.getElementById('capture-btn');
 
-  const modelsReady = Promise.all([recognition.preload(), engine.preload()]).then(() => {
+  function withTimeout(promise, name, ms) {
+    return Promise.race([
+      promise.then(() => { console.log(`[preload] ${name} ready`); }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`${name} timed out after ${ms / 1000}s`)), ms)
+      )
+    ]);
+  }
+
+  const modelsReady = Promise.all([
+    withTimeout(recognition.preload(), 'recognition', 30000),
+    withTimeout(engine.preload(), 'engine', 30000),
+  ]).then(() => {
     captureBtn.disabled = false;
     captureBtn.classList.add('ready');
   }).catch((err) => {
     console.error('Model preload failed:', err);
     captureBtn.classList.add('error');
-    showTemporaryMessage(`Load error: ${err.message}`);
+    showTemporaryMessage(err.message);
   });
 
   try {
