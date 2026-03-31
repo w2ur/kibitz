@@ -24,14 +24,7 @@ Everything runs locally on your Mac (M2). No cloud needed.
 Our `generate.py` imports `chess` to create random legal positions. Blender ships its own Python, so the package must be installed there.
 
 ```bash
-# Find Blender's Python
-find /Applications/Blender.app -name "python3" -type f
-
-# It will be something like:
-# /Applications/Blender.app/Contents/Resources/4.2/python/bin/python3
-# Use that path below (adjust the version number):
-
-/Applications/Blender.app/Contents/Resources/4.2/python/bin/python3 -m pip install python-chess
+/Applications/Blender.app/Contents/Resources/5.1/python/bin/python3.13 -m pip install python-chess
 ```
 
 ### Step 3: Test run (10 images)

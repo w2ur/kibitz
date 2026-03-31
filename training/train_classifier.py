@@ -53,11 +53,11 @@ def train(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
     print(f'Using device: {device}')
 
-    work_dir = Path(args.output)
+    work_dir = Path(args.output).resolve()
     work_dir.mkdir(parents=True, exist_ok=True)
 
     # Prepare data
-    crops_dir = prepare_dataset(Path(args.data), work_dir)
+    crops_dir = prepare_dataset(Path(args.data).resolve(), work_dir)
 
     # Data transforms
     train_transform = transforms.Compose([

@@ -4,6 +4,8 @@ Kibitz Synthetic Data Generator
 Generates training images of chess positions rendered in Blender.
 Run via: blender --background --python generate.py -- --count 1000 --output ../data/synthetic/
 
+For parallel generation, use generate_parallel.sh instead.
+
 Each render produces:
 - An RGB image (PNG)
 - A JSON annotation file with:
@@ -18,6 +20,7 @@ import json
 import math
 import random
 import sys
+import time
 from pathlib import Path
 
 import chess
@@ -37,6 +40,9 @@ def parse_args():
     parser.add_argument('--output', type=str, required=True, help='Output directory')
     parser.add_argument('--resolution', type=int, default=640, help='Image resolution (square)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--start-index', type=int, default=0, help='Starting image index (for resume/parallel)')
+    parser.add_argument('--engine', choices=['eevee', 'cycles'], default='eevee',
+                        help='Render engine (default: eevee, ~10x faster than cycles)')
     return parser.parse_args(argv)
 
 
@@ -44,14 +50,20 @@ def clear_scene():
     """Remove all objects from the scene."""
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
+    bpy.data.orphans_purge(do_recursive=True)
 
 
-def setup_render_settings(resolution):
+def setup_render_settings(resolution, engine='eevee'):
     """Configure render engine and output settings."""
     scene = bpy.context.scene
-    scene.render.engine = 'CYCLES'
-    scene.cycles.samples = 64  # Balance quality vs speed
-    scene.cycles.use_denoising = True
+
+    if engine == 'cycles':
+        scene.render.engine = 'CYCLES'
+        scene.cycles.samples = 32
+        scene.cycles.use_denoising = False
+    else:
+        scene.render.engine = 'BLENDER_EEVEE'
+
     scene.render.resolution_x = resolution
     scene.render.resolution_y = resolution
     scene.render.image_settings.file_format = 'PNG'
@@ -269,6 +281,16 @@ def get_square_bboxes(scene, cam):
     return squares
 
 
+def cleanup_dynamic_objects():
+    """Remove placed pieces, lights, and camera. Keep board and templates."""
+    to_remove = [
+        obj for obj in bpy.data.objects
+        if obj.name != 'Board' and not obj.name.startswith('Template_')
+    ]
+    for obj in to_remove:
+        bpy.data.objects.remove(obj, do_unlink=True)
+
+
 def generate_dataset(args):
     """Main generation loop."""
     output_dir = Path(args.output)
@@ -277,10 +299,30 @@ def generate_dataset(args):
     (output_dir / 'labels').mkdir(exist_ok=True)
 
     random.seed(args.seed)
-    setup_render_settings(args.resolution)
+
+    # One-time setup
+    clear_scene()
+    setup_render_settings(args.resolution, args.engine)
+    create_board()
+
+    white_mat = bpy.data.materials.new('WhitePiece')
+    white_mat.diffuse_color = (0.9, 0.85, 0.75, 1)
+    black_mat = bpy.data.materials.new('BlackPiece')
+    black_mat.diffuse_color = (0.15, 0.12, 0.1, 1)
+
+    templates = {}
+    for pt in ['P', 'R', 'N', 'B', 'Q', 'K']:
+        templates[pt] = create_piece_template(pt)
+
+    start_idx = args.start_index
+    batch_start = time.time()
 
     for i in range(args.count):
-        clear_scene()
+        img_start = time.time()
+        idx = start_idx + i
+
+        # Clean up previous iteration (keep board + templates)
+        cleanup_dynamic_objects()
 
         # Random parameters
         pitch = random.uniform(30, 70)
@@ -288,38 +330,25 @@ def generate_dataset(args):
         distance = random.uniform(8, 14)
         num_lights = random.randint(2, 4)
 
-        # Setup scene
-        create_board()
+        # Setup dynamic elements
         cam = setup_camera(pitch, yaw, distance)
         setup_lighting(num_lights)
-
-        # Create piece templates and materials
-        white_mat = bpy.data.materials.new('WhitePiece')
-        white_mat.diffuse_color = (0.9, 0.85, 0.75, 1)
-        black_mat = bpy.data.materials.new('BlackPiece')
-        black_mat.diffuse_color = (0.15, 0.12, 0.1, 1)
-
-        templates = {}
-        for pt in ['P', 'R', 'N', 'B', 'Q', 'K']:
-            templates[pt] = create_piece_template(pt)
 
         # Generate and place random position
         fen = random_fen()
         place_pieces(fen, templates, white_mat, black_mat)
 
         # Render
-        img_path = str(output_dir / 'images' / f'{i:06d}.png')
+        img_path = str(output_dir / 'images' / f'{idx:06d}.png')
         bpy.context.scene.render.filepath = img_path
         bpy.ops.render.render(write_still=True)
 
         # Get annotations
         corners = get_board_corners_in_image(bpy.context.scene, cam)
-
-        # Compute per-square bounding boxes for classifier training
         squares = get_square_bboxes(bpy.context.scene, cam)
 
         annotation = {
-            'image': f'{i:06d}.png',
+            'image': f'{idx:06d}.png',
             'fen': fen,
             'corners': corners,
             'squares': squares,
@@ -331,12 +360,26 @@ def generate_dataset(args):
             }
         }
 
-        label_path = output_dir / 'labels' / f'{i:06d}.json'
+        label_path = output_dir / 'labels' / f'{idx:06d}.json'
         with open(label_path, 'w') as f:
             json.dump(annotation, f, indent=2)
 
+        # Purge orphaned data blocks every 100 images as safety net
         if (i + 1) % 100 == 0:
-            print(f'Generated {i + 1}/{args.count} images')
+            bpy.data.orphans_purge(do_recursive=True)
+
+        img_elapsed = time.time() - img_start
+        if (i + 1) % 50 == 0:
+            total_elapsed = time.time() - batch_start
+            avg = total_elapsed / (i + 1)
+            remaining = avg * (args.count - i - 1)
+            print(f'[{i + 1}/{args.count}] idx={idx}  '
+                  f'last={img_elapsed:.1f}s  avg={avg:.1f}s  '
+                  f'ETA={remaining / 60:.0f}min')
+
+    total = time.time() - batch_start
+    print(f'Done: {args.count} images in {total / 60:.1f} min '
+          f'({total / args.count:.1f}s avg)')
 
 
 if __name__ == '__main__':

@@ -63,8 +63,8 @@ def prepare_dataset(data_dir, work_dir):
 
 
 def train(args):
-    data_dir = Path(args.data)
-    output_dir = Path(args.output)
+    data_dir = Path(args.data).resolve()
+    output_dir = Path(args.output).resolve()
     work_dir = output_dir / 'dataset'
 
     print('Preparing dataset...')

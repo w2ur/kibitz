@@ -37,7 +37,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Blender 4.x must be installed separately. The data generation script runs via Blender's Python:
+Blender 5.1 must be installed separately (bundled Python 3.13 at `/Applications/Blender.app/Contents/Resources/5.1/python/bin/python3.13`). The data generation script runs via Blender's Python:
 
 ```bash
 blender --background --python blender/generate.py -- --count 30000 --output data/synthetic/
@@ -55,7 +55,9 @@ blender --background --python blender/generate.py -- --count 30000 --output data
 
 ## Testing
 
-- **App:** Manual browser testing (vanilla JS, no test framework in v1)
+- **App:** Vitest + fast-check for pure logic (FEN parsing, etc.). Run: `npm test`
+  - Test files live next to source: `js/board.js` → `js/board.test.js`
+  - DOM-dependent code is tested manually in the browser (no jsdom needed yet)
 - **ML Pipeline:** pytest for data pipeline and evaluation scripts
 
 ## Dark/Light Mode

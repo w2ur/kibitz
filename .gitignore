@@ -28,6 +28,15 @@ wandb/
 docs/plans/
 .superpowers/
 
+# Node
+node_modules/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# YOLO stray output
+runs/
+
 # Backups
 *.bak
 *.backup
