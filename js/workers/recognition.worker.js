@@ -1,7 +1,7 @@
-// Recognition Web Worker
+// Recognition Web Worker (module)
 // Runs ONNX models for board detection and piece classification
 
-importScripts('../../vendor/ort.min.js');
+import * as ort from '../../vendor/ort.wasm.bundle.min.mjs';
 
 let detectorSession = null;
 let classifierSession = null;

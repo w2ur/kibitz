@@ -5,7 +5,7 @@ let readyPromise = null;
 export function preload() {
   if (worker) return readyPromise;
 
-  worker = new Worker('js/workers/recognition.worker.js');
+  worker = new Worker('js/workers/recognition.worker.js', { type: 'module' });
 
   readyPromise = new Promise((resolve, reject) => {
     const handler = (e) => {
