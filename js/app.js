@@ -128,14 +128,13 @@ async function init() {
 
   // Start model preload and camera init in parallel
   const captureBtn = document.getElementById('capture-btn');
-  captureBtn.textContent = 'Loading models…';
 
   const modelsReady = Promise.all([recognition.preload(), engine.preload()]).then(() => {
     captureBtn.disabled = false;
-    captureBtn.textContent = '';
+    captureBtn.classList.add('ready');
   }).catch((err) => {
     console.error('Model preload failed:', err);
-    captureBtn.textContent = 'Models failed to load';
+    captureBtn.classList.add('error');
     showTemporaryMessage(`Load error: ${err.message}`);
   });
 

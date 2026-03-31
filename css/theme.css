@@ -160,8 +160,10 @@ html, body {
 /* Capture button loading state */
 .capture-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .capture-btn:disabled::after { background: var(--color-text-muted); }
+.capture-btn.error { opacity: 0.3; }
+.capture-btn.error::after { background: var(--color-danger); }
 .capture-loading { display: none; }
-.capture-btn:disabled .capture-loading {
+.capture-btn:disabled:not(.error) .capture-loading {
   display: block;
   width: 20px; height: 20px;
   border: 2px solid var(--color-text-muted);
@@ -171,6 +173,7 @@ html, body {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 /* Loading spinner */
