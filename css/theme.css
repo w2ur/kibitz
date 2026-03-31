@@ -36,6 +36,28 @@ html, body {
 .state { display: none; height: 100%; width: 100%; position: absolute; top: 0; left: 0; }
 .state.active { display: flex; flex-direction: column; }
 
+/* Camera state layout */
+#state-camera { position: relative; }
+#camera-feed {
+  width: 100%;
+  flex: 1;
+  object-fit: cover;
+  min-height: 0;
+}
+.camera-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  z-index: 5;
+}
+
 /* Capture button */
 .capture-btn {
   width: 72px;
