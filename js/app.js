@@ -126,7 +126,19 @@ async function init() {
     board.render(state.lastResult);
   });
 
-  // Start
+  // Start model preload and camera init in parallel
+  const captureBtn = document.getElementById('capture-btn');
+  captureBtn.textContent = 'Loading models…';
+
+  const modelsReady = Promise.all([recognition.preload(), engine.preload()]).then(() => {
+    captureBtn.disabled = false;
+    captureBtn.textContent = '';
+  }).catch((err) => {
+    console.error('Model preload failed:', err);
+    captureBtn.textContent = 'Models failed to load';
+    showTemporaryMessage(`Load error: ${err.message}`);
+  });
+
   try {
     await camera.init();
     state.transition('camera');
@@ -136,17 +148,7 @@ async function init() {
     });
   }
 
-  // Preload models in background — enable capture button when ready
-  const captureBtn = document.getElementById('capture-btn');
-  captureBtn.textContent = 'Loading models…';
-  Promise.all([recognition.preload(), engine.preload()]).then(() => {
-    captureBtn.disabled = false;
-    captureBtn.textContent = '';
-  }).catch((err) => {
-    console.error('Model preload failed:', err);
-    captureBtn.textContent = 'Models failed to load';
-    showTemporaryMessage(`Load error: ${err.message}`);
-  });
+  await modelsReady;
 }
 
 function expandFENRow(row) {

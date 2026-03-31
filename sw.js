@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kibitz-v3';
+const CACHE_NAME = 'kibitz-v4';
 const MODEL_CACHE = 'kibitz-models-v1';
 
 const APP_SHELL = [
