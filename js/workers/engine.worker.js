@@ -74,8 +74,16 @@ self.onmessage = async function (e) {
     // so engine.worker.wasm must be co-located with this worker file.
     importScripts('../../vendor/stockfish.js');
 
-    // Flush any commands sent before processCommand was ready
-    while (pendingQueue.length && self.processCommand) {
+    // Wait for Stockfish WASM to compile and set processCommand
+    await new Promise(resolve => {
+      if (self.processCommand) return resolve();
+      const check = setInterval(() => {
+        if (self.processCommand) { clearInterval(check); resolve(); }
+      }, 50);
+    });
+
+    // Flush any commands queued before processCommand was ready
+    while (pendingQueue.length) {
       self.processCommand(pendingQueue.shift());
     }
 
