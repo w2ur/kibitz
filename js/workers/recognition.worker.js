@@ -23,15 +23,20 @@ self.onmessage = async function(e) {
     try {
       // Configure ONNX Runtime
       ort.env.wasm.wasmPaths = '../../vendor/';
+      // Single-threaded: avoids SharedArrayBuffer requirement
+      // (GitHub Pages can't set COOP/COEP headers)
+      ort.env.wasm.numThreads = 1;
+
+      const providers = ['wasm'];
 
       detectorSession = await ort.InferenceSession.create(
         '../../models/board-detect.onnx',
-        { executionProviders: ['webgpu', 'wasm'] }
+        { executionProviders: providers }
       );
 
       classifierSession = await ort.InferenceSession.create(
         '../../models/piece-classify.onnx',
-        { executionProviders: ['webgpu', 'wasm'] }
+        { executionProviders: providers }
       );
 
       self.postMessage({ type: 'ready' });

@@ -145,7 +145,7 @@ async function init() {
   }).catch((err) => {
     console.error('Model preload failed:', err);
     captureBtn.textContent = 'Models failed to load';
-    showTemporaryMessage('Models failed to load. Check the console for details.');
+    showTemporaryMessage(`Load error: ${err.message}`);
   });
 }
 
